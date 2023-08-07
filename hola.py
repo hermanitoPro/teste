@@ -265,31 +265,17 @@ def message_hello(message, client,action, event,body,ack,logger):
                 result=client.chat_postMessage(channel=channel_id,text='Capturando canais..',thread_ts=thread)                
                 result=client.chat_postMessage(channel=channel_id,text='Lendo arquivo de entrada..',thread_ts=thread) 
                 for i in event['files']:
-                    print("[DEBUG] Inicio de la iteración del archivo.")
                     if i['url_private_download'] and i['mode']=='snippet':    
                         url=i['url_private']
                         token=os.environ["SLACK_BOT_TOKEN"]
                         r = requests.get(url, auth=BearerAuth(token))
                         file_data = r.content   # get binary content
-                        print("Respuesta del servidor:", r.status_code)
                         print(file_data)
                         file_name=" "
                         # save file to disk
-                        saved_file_path = os.path.join(cwd, 'hierarquia.csv')
-                        print("[DEBUG] Directorio de trabajo actual:", cwd)
                         with open(os.path.join(cwd, 'hierarquia.csv') , 'w+b') as f:
-                            print("[DEBUG] Escribiendo archivo hierarquia.csv.")
                             f.write(bytearray(file_data))
-                        time.sleep(2)
-                        if os.path.exists(saved_file_path):
-                            print("[DEBUG] El archivo fue guardado exitosamente.")
-                        else:
-                            print("[DEBUG] El archivo no fue guardado.")
-                        with open(saved_file_path, 'r') as f:
-                            content = f.readlines()
-                        print("[DEBUG] Contenido del archivo:", content)
                 result=client.chat_postMessage(channel=channel_id,text='Separando os atendimentos por gestor..',thread_ts=thread)    
-                print("[DEBUG] Intentando leer el CSV.")
                 caminho=os.path.join(cwd, 'hierarquia.csv')
                 df=pd.read_csv(caminho,sep=';') 
                 df = df.astype(str)                  
@@ -358,10 +344,9 @@ def message_hello(message, client,action, event,body,ack,logger):
                     
                 result=client.chat_postMessage(channel=channel_id,text='Envio realizado',thread_ts=thread)        
             else:
-                print("[DEBUG] No se cumplió la condición de people_hierarquia.")
                 result=client.chat_postMessage(channel=channel_id,text='Você não tem permissão para realizar essa ação',thread_ts=thread)
     except Exception as e:
-            print("[ERROR] Excepción capturada en el bloque principal:", e)
+            print(e)
       
             if message!=None and message['channel'][0]!='C': #verifica se o acionamento não veio de um canal 
                 channel_id=message['channel']
